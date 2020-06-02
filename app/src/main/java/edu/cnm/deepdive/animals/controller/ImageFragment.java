@@ -1,6 +1,7 @@
 package edu.cnm.deepdive.animals.controller;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -12,7 +13,13 @@ import android.view.ViewGroup;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import edu.cnm.deepdive.animals.BuildConfig;
 import edu.cnm.deepdive.animals.R;
+import edu.cnm.deepdive.animals.model.Animal;
+import edu.cnm.deepdive.animals.service.AnimalService;
+import java.io.IOException;
+import java.util.List;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -24,7 +31,6 @@ public class ImageFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
 
-
     View root = inflater.inflate(R.layout.fragment_image, container, false);
     setupWebView(root);
     return root;
@@ -33,7 +39,7 @@ public class ImageFragment extends Fragment {
 
   private void setupWebView(View root) {
     contentView = root.findViewById(R.id.content_view);
-    contentView.setWebViewClient(new WebViewClient(){
+    contentView.setWebViewClient(new WebViewClient() {
       @Override
       public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         return false;
@@ -46,20 +52,61 @@ public class ImageFragment extends Fragment {
     settings.setDisplayZoomControls(false);
     settings.setUseWideViewPort(true);
     settings.setLoadWithOverviewMode(true);
+    new Retriever().start();
 
   }
 
   private class Retriever extends Thread {
 
+
     @Override
     public void run() {
+      Log.d("AnimalService", "before gson builder");
+
       Gson gson = new GsonBuilder()
           .excludeFieldsWithoutExposeAnnotation()
           .create();
       Retrofit retrofit = new Retrofit.Builder()
-          .baseUrl("https://us-central1-apis-4674e.cloudfunctions.net")
+          .baseUrl("https://us-central1-apis-4674e.cloudfunctions.net/")
           .addConverterFactory(GsonConverterFactory.create(gson))
           .build();
+      Log.d("AnimalService", "before service");
+
+      AnimalService animalService = retrofit.create(AnimalService.class);
+      Log.d("AnimalService", "before try");
+
+      try {
+        Log.d("AnimalService", "before request");
+
+        Response<List<Animal>> response = animalService.getAnimals(BuildConfig.CLIENT_KEY)
+            .execute();
+        Log.d("AnimalService", "after request");
+
+        if (response.isSuccessful()) {
+          Log.d("AnimalService", "response is successful");
+
+          List<Animal> animals = response.body();
+          Log.d("AnimalService", String.valueOf(animals));
+
+          assert animals != null;
+          final String url = animals.get(0).getUrl();
+          getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              Log.d("AnimalService", url);
+              contentView.loadUrl(url);
+            }
+          });
+
+        } else {
+          Log.d("AnimalService", "response is unsuccessful");
+
+          Log.e("AnimalService", response.message());
+        }
+
+      } catch (IOException e) {
+        Log.e("AnimalService", e.getMessage(), e);
+      }
 
 
     }
