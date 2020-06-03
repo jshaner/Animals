@@ -19,7 +19,11 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "String", "CLIENT_KEY", getProperty("$projectDir/../../../services/animals.properties", "client_key")
+        buildConfigField "String", "CLIENT_KEY",
+                getProperty("$projectDir/../../../services/animals.properties", "client_key")
+        buildConfigField "String", "BASE_URL",
+                getProperty("$projectDir/../../../services/animals.properties", "base_url")
+
     }
 
     buildTypes {

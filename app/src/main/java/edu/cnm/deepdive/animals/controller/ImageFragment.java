@@ -67,7 +67,7 @@ public class ImageFragment extends Fragment {
           .excludeFieldsWithoutExposeAnnotation()
           .create();
       Retrofit retrofit = new Retrofit.Builder()
-          .baseUrl("https://us-central1-apis-4674e.cloudfunctions.net/")
+          .baseUrl(BuildConfig.BASE_URL)
           .addConverterFactory(GsonConverterFactory.create(gson))
           .build();
       Log.d("AnimalService", "before service");
