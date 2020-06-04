@@ -1,5 +1,6 @@
 package edu.cnm.deepdive.animals.controller;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebResourceRequest;
@@ -52,17 +53,18 @@ public class ImageFragment extends Fragment {
     settings.setDisplayZoomControls(false);
     settings.setUseWideViewPort(true);
     settings.setLoadWithOverviewMode(true);
-    new Retriever().start();
+    new RetrieveImageTask().execute();
 
   }
 
-  private class Retriever extends Thread {
+  private class RetrieveImageTask extends AsyncTask<Void,Void,List<Animal>> {
+
+    private AnimalService animalService;
 
 
     @Override
-    public void run() {
-      Log.d("AnimalService", "before gson builder");
-
+    protected void onPreExecute() {
+      super.onPreExecute();
       Gson gson = new GsonBuilder()
           .excludeFieldsWithoutExposeAnnotation()
           .create();
@@ -72,8 +74,13 @@ public class ImageFragment extends Fragment {
           .build();
       Log.d("AnimalService", "before service");
 
-      AnimalService animalService = retrofit.create(AnimalService.class);
-      Log.d("AnimalService", "before try");
+      animalService = retrofit.create(AnimalService.class);
+
+    }
+
+    @Override
+    protected List<Animal> doInBackground(Void... voids) {
+
 
       try {
         Log.d("AnimalService", "before request");
@@ -89,16 +96,11 @@ public class ImageFragment extends Fragment {
           Log.d("AnimalService", String.valueOf(animals));
 
           assert animals != null;
-          final String url = animals.get(0).getUrl();
-          getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-              Log.d("AnimalService", url);
-              contentView.loadUrl(url);
-            }
-          });
+          return animals;
+
 
         } else {
+          cancel(true);
           Log.d("AnimalService", "response is unsuccessful");
 
           Log.e("AnimalService", response.message());
@@ -106,11 +108,20 @@ public class ImageFragment extends Fragment {
 
       } catch (IOException e) {
         Log.e("AnimalService", e.getMessage(), e);
+        cancel(true);
       }
 
+      return null;
+    }
+
+
+    @Override
+    protected void onPostExecute(List<Animal> animals) {
+      super.onPostExecute(animals);
+           final String url = animals.get(20).getUrl();
+                contentView.loadUrl(url);
+    }
 
     }
-  }
 
-
-}
+      }
