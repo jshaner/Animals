@@ -7,25 +7,28 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   tools:context=".controller.ImageFragment">
 
+
   <WebView
     android:id="@+id/content_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    />
+    app:layout_constraintTop_toTopOf="parent">
+
+    <Spinner
+      android:id="@+id/animals_spinner"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      />
+  </WebView>
 
   <TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintBottom_toBottomOf="parent"
-    android:text="=Portrait Mode"
+    android:text="@string/portrait_mode"
     android:textColor="#ffffff"
     />
-
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
