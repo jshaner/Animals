@@ -68,9 +68,7 @@ public class ImageFragment extends Fragment implements OnItemSelectedListener {
     //noinspection ConstantConditions
     viewModel = new ViewModelProvider(getActivity())
         .get(MainViewModel.class);
-    viewModel.getAnimals().observe(getViewLifecycleOwner(), new Observer<List<Animal>>() {
-      @Override
-      public void onChanged(List<Animal> animals) {
+    viewModel.getAnimals().observe(getViewLifecycleOwner(), (animals) -> {
         ImageFragment.this.animals = animals;
         ArrayAdapter<Animal> adapter = new ArrayAdapter<>(
             ImageFragment.this.getContext(), R.layout.custom_spinner_item, animals
@@ -78,8 +76,7 @@ public class ImageFragment extends Fragment implements OnItemSelectedListener {
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-      }
-    });
+      });
   }
 
   private void setupWebView(View root) {
